@@ -55,10 +55,29 @@ model = RNN()
 model.summary()
 model.compile(loss='binary_crossentropy',optimizer=RMSprop(),metrics=['accuracy'])
 
+import matplotlib.pyplot as plt
 # Fitting the model on training data
 from keras.callbacks import EarlyStopping
-model.fit(sequences_matrix,Y_train,batch_size=100,epochs=5,
+history = model.fit(sequences_matrix,Y_train,batch_size=100,epochs=5,
           validation_split=0.1,callbacks=[EarlyStopping(monitor='val_loss',min_delta=0.0001)])
+
+# Plot training & validation accuracy values
+plt.plot(history.history['acc'])
+plt.plot(history.history['val_acc'])
+plt.title('Model accuracy')
+plt.ylabel('Accuracy')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Test'], loc='upper left')
+plt.show()
+
+# Plot training & validation loss values
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('Model loss')
+plt.ylabel('Loss')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Test'], loc='upper left')
+plt.show()
 
 # Testing the model
 test_sequences = tok.texts_to_sequences(X_test)
@@ -68,6 +87,11 @@ test_sequences_matrix = sequence.pad_sequences(test_sequences,maxlen=max_len)
 accr = model.evaluate(test_sequences_matrix,Y_test)
 print('Test set\n  Loss: {:0.3f}\n  Accuracy: {:0.3f}'.format(accr[0],accr[1]))
 
+# Plotting the Model
+from keras.utils import plot_model
+plot_model(model, to_file='model.png')
+
+# Predicting on input
 to_pred = input("Enter the string to predict: ")
 test = tok.texts_to_sequences([to_pred])
 test_matrix = sequence.pad_sequences(test,maxlen=max_len)
